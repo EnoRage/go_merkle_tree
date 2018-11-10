@@ -24,7 +24,10 @@ func CreateTree(elements [][]byte) ([][][]byte, error) {
 	current := make([][]byte, 0)
 
 	tree := make([][][]byte, 0)
-	tree = append(tree, elements)
+	for i:=0; i < len(elements); i++ {
+		tree = append(tree, elements)
+	}
+
 
 	for level := 1; level <= maxLevel; level++ {
 
@@ -33,27 +36,25 @@ func CreateTree(elements [][]byte) ([][][]byte, error) {
 			left := tree[level - 1][i * 2]
 			right := tree[level - 1][i * 2 + 1]
 
-			h = sha256.New()
+			f := sha256.New()
 
-			if _, err := h.Write(append(left, right...)); err != nil {
+			if _, err := f.Write(append(left, right...)); err != nil {
 				return nil, err
 			}
 
-			current = append(current, h.Sum(nil))
+			current = append(current, f.Sum(nil))
 		}
 
 		if len(current) % 2 == 0 && level < maxLevel {
 			current = append(current, empty)
 		}
 
-		h = sha256.New()
-		_, _ = h.Write(append(empty, empty...))
-		empty = h.Sum(nil)
+		l := sha256.New()
+		_, _ = l.Write(append(empty, empty...))
+		empty = l.Sum(nil)
 
 		tree = append(tree, current)
-		print("Current level ")
-		print(level)
-		println(" ")
+
 		println(hex.EncodeToString(current[level]))
 
 	}

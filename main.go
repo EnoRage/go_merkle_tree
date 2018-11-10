@@ -16,10 +16,11 @@ func main() {
 
 func initElements() [][]byte {
 	stringArr := make([]string, 0)
-	stringArr = append(stringArr, "Te")
-	stringArr = append(stringArr, "Te")
-	stringArr = append(stringArr, "Te")
-	stringArr = append(stringArr, "Te")
+	stringArr = append(stringArr, "4555rr5ffvvf5")
+	stringArr = append(stringArr, "4555rr55")
+	stringArr = append(stringArr, "4555rr55")
+	stringArr = append(stringArr, "4555rr55")
+
 
 	elements := make([][]byte, 0)
 
