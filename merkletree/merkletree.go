@@ -1,7 +1,8 @@
 package merkletree
 
 import (
-	"crypto/sha256"
+	"github.com/ethereum/go-ethereum/crypto/sha3"
+	"hash"
 )
 
 const (
@@ -15,8 +16,12 @@ const (
 //	HashOf() ([]byte, error)
 //}
 
+func initHashFunction() hash.Hash {
+	return sha3.NewKeccak256()
+}
+
 func CreateTree(elements [][]byte) ([][][]byte, error) {
-	h := sha256.New()
+	h := initHashFunction()
 	_, _ = h.Write([]byte(string(' ')))
 	empty := h.Sum(nil)
 
@@ -33,7 +38,7 @@ func CreateTree(elements [][]byte) ([][][]byte, error) {
 			left := tree[level-1][i*2]
 			right := tree[level-1][i*2+1]
 
-			f := sha256.New()
+			f := initHashFunction()
 			bytes := make([]byte, 0)
 
 			//_, _ = f.Write(bytes)
@@ -56,8 +61,6 @@ func CreateTree(elements [][]byte) ([][][]byte, error) {
 
 		}
 
-
-
 		//current.length % 2 && level < maxLevel
 		if (len(current)%2 > 0) && level < maxLevel {
 			current = append(current, empty)
@@ -66,7 +69,7 @@ func CreateTree(elements [][]byte) ([][][]byte, error) {
 		e := make([]byte, 0)
 		e = append(empty, empty...)
 
-		l := sha256.New()
+		l := initHashFunction()
 		_, _ = l.Write(e)
 		empty = l.Sum(nil)
 
