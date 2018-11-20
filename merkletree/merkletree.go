@@ -5,7 +5,7 @@ type MerkleTree struct {
 }
 
 type Node struct {
-	value []byte
+	value []string
 	ElementMethodos
 }
 
@@ -78,7 +78,7 @@ func makeNodes(elements *Elements, empty *Element) *[]Node {
 				sum := j[i][0] + j[i][1] // [ [ el1, el2]...]; el1 + el2
 				// keccak := sha3.NewKeccak256()
 				// keccak.Write([]byte(string(sum)))
-				n.value = []byte(string(sum))
+				n.value = []string{string(sum)}
 				nodeGroup = append(nodeGroup, *n)
 			}
 			info <- nodeGroup
@@ -104,7 +104,7 @@ func makeNodes(elements *Elements, empty *Element) *[]Node {
 			sum := j[i][0] + j[i][1]
 			// keccak := sha3.NewKeccak256()
 			// keccak.Write([]byte(string(sum)))
-			n.value = []byte(string(sum))
+			n.value = []string{string(sum)}
 			nodeGroup = append(nodeGroup, *n)
 		}
 		info <- nodeGroup
