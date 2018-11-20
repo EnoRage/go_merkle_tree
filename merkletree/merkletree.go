@@ -6,6 +6,7 @@ type MerkleTree struct {
 
 type Node struct {
 	value []byte
+	ElementMethodos
 }
 
 type Nodes struct {
@@ -21,14 +22,13 @@ type Elements struct {
 }
 
 type ElementMethodos interface {
-	Equal(el Element) (bool)
-	Hash() ([]byte)
-	Concat(empty Element, emptySecond Element) (Element)
+	Equal(el Element) bool
+	Hash() []byte
+	Concat(empty Element, emptySecond Element) Element
 }
 
 type Element struct {
 	Element string
-
 	ElementMethodos
 }
 
@@ -53,23 +53,66 @@ func Tree(params *Params, elements *Elements) *MerkleTree {
 func makeNodes(elements *Elements, empty *Element) *[]Node {
 
 	nodeGroup := make([]Node, 0)
-
 	e := *elements
+	arr := e.Elements
+	var temporaryArr [][2]string // array for nodes - [ [el1, el2] [el3, el4] ... ]
 
-	for i := 0; i < len(e.Elements); i++ {
-		n := new(Node)
-		n.value = e.Elements[i].Hash()
-		nodeGroup = append(nodeGroup, *n)
+	if len(e.Elements)%2 != 0 {
+		info := make(chan []Node)
+
+		go func() {
+			lastElements := arr[len(arr)-1]
+			emp := makeEmptyElement(*empty)
+
+			arr = arr[:len(arr)-1]
+
+			for i := 0; i < len(arr); {
+				twoEls := [2]string{arr[i].Element, arr[i+1].Element}
+				temporaryArr = append(temporaryArr, twoEls)
+				i += 2
+			}
+			temporaryArr = append(temporaryArr, [2]string{lastElements.Element, emp.Element}) // add to the end of array -> [...[lastElement, empty]]
+
+			for i, j := range temporaryArr {
+				n := new(Node)
+				sum := j[i][0] + j[i][1] // [ [ el1, el2]...]; el1 + el2
+				// keccak := sha3.NewKeccak256()
+				// keccak.Write([]byte(string(sum)))
+				n.value = []byte(string(sum))
+				nodeGroup = append(nodeGroup, *n)
+			}
+			info <- nodeGroup
+		}()
+
+		result := <-info
+
+		return &result
+
 	}
 
-	if len(nodeGroup)%2 != 0 {
-		n := new(Node)
-		emp := makeEmptyElement(*empty)
-		n.value = emp.Hash()
-		nodeGroup = append(nodeGroup, *n)
-	}
+	info := make(chan []Node)
 
-	return &nodeGroup
+	go func() {
+		for i := 0; i < len(arr); {
+			twoEls := [2]string{arr[i].Element, arr[i+1].Element}
+			temporaryArr = append(temporaryArr, twoEls)
+			i += 2
+		}
+
+		for i, j := range temporaryArr {
+			n := new(Node)
+			sum := j[i][0] + j[i][1]
+			// keccak := sha3.NewKeccak256()
+			// keccak.Write([]byte(string(sum)))
+			n.value = []byte(string(sum))
+			nodeGroup = append(nodeGroup, *n)
+		}
+		info <- nodeGroup
+	}()
+
+	result := <-info
+	return &result
+
 }
 
 func makeEmptyElement(empty Element) Element {
